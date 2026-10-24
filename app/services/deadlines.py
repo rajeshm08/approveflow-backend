@@ -32,16 +32,16 @@ def process_deadlines(db: Session, now: datetime | None = None) -> int:
         alert_kind = None
         if due_at - timedelta(days=3) <= current_time < due_at - timedelta(days=3) + timedelta(minutes=1):
             alert_kind = "reminder_t_minus_3"
-            title = "Application deadline in 3 days"
+            title = "Demo application deadline in 3 days"
         elif due_at - timedelta(days=1) <= current_time < due_at - timedelta(days=1) + timedelta(minutes=1):
             alert_kind = "reminder_t_minus_1"
-            title = "Application deadline tomorrow"
+            title = "Demo application deadline tomorrow"
         elif due_at + timedelta(days=1) <= current_time < due_at + timedelta(days=1) + timedelta(minutes=1):
             alert_kind = "overdue_t_plus_1"
-            title = "Application overdue"
+            title = "Demo application overdue"
         elif due_at + timedelta(days=3) <= current_time < due_at + timedelta(days=3) + timedelta(minutes=1):
             alert_kind = "escalation_t_plus_3"
-            title = "Application deadline escalation"
+            title = "Demo application deadline escalation"
         else:
             continue
 
@@ -55,11 +55,19 @@ def process_deadlines(db: Session, now: datetime | None = None) -> int:
             key = f"{alert_kind}:application:{application.id}:user:{recipient.id}"
             if db.query(Notification.id).filter(Notification.deduplication_key == key).first():
                 continue
+            notification_type = {
+                "reminder_t_minus_3": "deadline_approaching",
+                "reminder_t_minus_1": "deadline_approaching",
+                "overdue_t_plus_1": "overdue",
+                "escalation_t_plus_3": "escalation_issued",
+            }[alert_kind]
             notification = Notification(
                 user_id=recipient.id,
                 application_id=application.id,
                 title=title,
-                message=f"{application.application_number} is at stage {application.current_stage}.",
+                message=f"DEMO DATA: {application.application_number} is at stage {application.current_stage}.",
+                notification_type=notification_type,
+                delivery_status="sent",
                 deduplication_key=key,
             )
             try:
@@ -77,7 +85,7 @@ def process_deadlines(db: Session, now: datetime | None = None) -> int:
                 details={
                     "old_values": {},
                     "new_values": {"alert_kind": alert_kind, "application_id": application.id},
-                    "reason": "Scheduled deadline alert",
+                    "reason": "Scheduled demo deadline alert",
                 },
             )
             created += 1
@@ -87,7 +95,8 @@ def process_deadlines(db: Session, now: datetime | None = None) -> int:
             if not db.query(Escalation.id).filter(Escalation.deduplication_key == escalation_key).first():
                 escalation = Escalation(
                     application_id=application.id,
-                    reason="Application remained overdue for 3 days.",
+                    reason="DEMO DATA: Application remained overdue for 3 days.",
+                    escalation_level="senior_officer",
                     deduplication_key=escalation_key,
                 )
                 db.add(escalation)

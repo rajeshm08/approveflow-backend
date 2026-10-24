@@ -23,6 +23,14 @@ FastAPI backend for **ApproveFlow AI**, the AICTE Approval Workflow, Compliance 
 
 The seed script creates seven demo users, 25 synthetic institutions/applications, five regions, a workflow template, and historical stage data. **All demo passwords and data are for local development only.** Seed SLA values are illustrative, not official AICTE deadlines. The database is seeded only when it contains no users or applications. `DEMO_MODE=true` enables the one-minute APScheduler deadline job; turn it off to disable the background scheduler. Deadline alert offsets are illustrative demo values, not official AICTE deadlines.
 
+The seed includes APP-1001 through APP-1025, escalations, notifications, EVC/compliance/document examples, and runs the deadline job once to create deduplicated alerts. To discard the current demo data, clear uploads, and reseed:
+
+```powershell
+.\venv\Scripts\python.exe reset_demo.py
+```
+
+Confirm the prompt to continue, or use `--yes` for a non-interactive reset. The tool allows the default `approveflow.db` and clearly named `approveflow` demo/E2E SQLite databases. For PostgreSQL or any other database name, it refuses unless `SEED_DEMO_DATA=true` is set in the environment; only set this for a verified, disposable demo database.
+
 Uploaded files are validated by file signature and declared content type, limited to 5 MB, and stored under a random key in a private directory (`UPLOAD_DIRECTORY`, default `private_uploads`). This directory is not mounted as a public static path.
 
 ## Demo logins

@@ -13,6 +13,7 @@ class Escalation(Base):
     application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"), index=True)
     reason: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(40), default="open")
+    escalation_level: Mapped[str | None] = mapped_column(String(60), nullable=True)
     deduplication_key: Mapped[str | None] = mapped_column(String(240), unique=True, nullable=True, index=True)
     resolved_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

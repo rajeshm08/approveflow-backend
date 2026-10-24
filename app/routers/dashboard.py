@@ -11,6 +11,7 @@ from app.security.auth import get_current_user
 from app.security.permissions import visible_applications_query
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
+COMPLETED_STATUSES = ["approved", "rejected", "completed"]
 
 
 @router.get("/summary")
@@ -26,7 +27,12 @@ def dashboard_summary(db: Session = Depends(get_db), user: User = Depends(get_cu
     )
     overdue = (
         visible_applications_query(user, db)
-        .filter(Application.due_at.is_not(None), Application.due_at < now, Application.status.notin_(["approved", "rejected"]))
+        .filter(
+            Application.due_at.is_not(None),
+            Application.due_at < now,
+            Application.status.notin_(COMPLETED_STATUSES),
+            Application.current_stage.notin_(COMPLETED_STATUSES),
+        )
         .count()
     )
     upcoming = (
@@ -35,7 +41,8 @@ def dashboard_summary(db: Session = Depends(get_db), user: User = Depends(get_cu
             Application.due_at.is_not(None),
             Application.due_at >= now,
             Application.due_at <= now + timedelta(days=7),
-            Application.status.notin_(["approved", "rejected"]),
+            Application.status.notin_(COMPLETED_STATUSES),
+            Application.current_stage.notin_(COMPLETED_STATUSES),
         )
         .count()
     )

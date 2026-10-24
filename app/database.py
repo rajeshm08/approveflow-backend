@@ -34,9 +34,12 @@ def ensure_extension_columns() -> None:
         "notifications": {
             "application_id": "INTEGER",
             "deduplication_key": "VARCHAR(240)",
+            "notification_type": "VARCHAR(60)",
+            "delivery_status": "VARCHAR(30)",
         },
         "escalations": {
             "deduplication_key": "VARCHAR(240)",
+            "escalation_level": "VARCHAR(60)",
             "resolved_by": "INTEGER",
             "resolved_at": "TIMESTAMP",
         },

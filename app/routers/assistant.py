@@ -37,6 +37,36 @@ def ask_assistant(
     user: User = Depends(get_current_user),
 ):
     question = payload.question.lower()
+    application_number_match = re.search(r"\bapp-\d+\b", question, re.IGNORECASE)
+    if application_number_match:
+        application = application_scope(user, db).filter(
+            Application.application_number == application_number_match.group(0).upper()
+        ).one_or_none()
+        if application is None:
+            return {"answer": UNAVAILABLE, "data": []}
+        answer = (
+            f"Application {application.application_number} is at stage "
+            f"{application.current_stage} with status {application.status}."
+        )
+        if "why" in question and application.current_stage == "evc_scheduling":
+            answer = (
+                f"{answer} It is pending because the EVC site visit is awaiting coordinator "
+                "scheduling or confirmation."
+            )
+        elif "why" in question and application.due_at and application.due_at < datetime.utcnow():
+            answer = f"{answer} Its deadline is overdue."
+        return {
+            "answer": answer,
+            "data": {
+                "application_id": application.id,
+                "application_number": application.application_number,
+                "institution_id": application.institution_id,
+                "current_stage": application.current_stage,
+                "status": application.status,
+                "due_at": application.due_at,
+            },
+        }
+
     application_match = re.search(r"\bapplication\s*(?:id|#)?\s*(\d+)\b", question)
     application_id = (
         int(application_match.group(1))

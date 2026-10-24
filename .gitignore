@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.db
+private_uploads/
+.env
+.pytest_cache/
+.venv/
+venv/
+.idea/
+.vscode/

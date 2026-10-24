@@ -189,15 +189,25 @@ def seed() -> None:
                 )
             )
 
-        # T+1 demo alerts are regional-level open escalations; the real deadline
-        # job creates T+3 senior escalations and their deduplicated notifications.
-        for index, application in enumerate((applications[2], applications[3], applications[4])):
+        # Seed both escalation levels explicitly; the deadline job creates
+        # deduplicated notifications and will not duplicate existing T+3 rows.
+        for application in (applications[2], applications[3], applications[4]):
             db.add(
                 Escalation(
                     application_id=application.id,
                     reason="DEMO DATA: T+1 overdue alert awaiting regional officer action.",
                     escalation_level="regional_officer",
                     deduplication_key=f"demo:t_plus_1:application:{application.id}",
+                    escalated_at=seeded_at,
+                )
+            )
+        for application in (applications[5], applications[6], applications[7]):
+            db.add(
+                Escalation(
+                    application_id=application.id,
+                    reason="DEMO DATA: T+3 escalation awaiting senior officer review.",
+                    escalation_level="senior_officer",
+                    deduplication_key=f"escalation_t_plus_3:application:{application.id}",
                     escalated_at=seeded_at,
                 )
             )

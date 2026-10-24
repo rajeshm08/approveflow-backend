@@ -2,6 +2,24 @@
 
 FastAPI backend for **ApproveFlow AI**, the AICTE Approval Workflow, Compliance & Alert Intelligence Platform (SIH26262). The API uses SQLAlchemy 2.x and Pydantic v2, SQLite by default, and PostgreSQL when `DATABASE_URL` is configured.
 
+## Render and Neon demo deployment
+
+The repository includes `render.yaml` for a free-tier Render web service running Python 3.12. It installs dependencies with `pip install -r requirements.txt`, starts Uvicorn on Render's `$PORT`, and exposes `/health` for health checks. Add a Neon PostgreSQL connection string to Render as `DATABASE_URL`; `postgres://` and `postgresql://` URLs are normalized to the installed psycopg 3 driver while preserving query parameters such as `sslmode=require`.
+
+Set these Render environment variables:
+
+| Variable | Value |
+| --- | --- |
+| `DATABASE_URL` | Neon connection string, including `?sslmode=require` |
+| `SECRET_KEY` | A unique, long, random secret |
+| `ALLOWED_ORIGINS` | Comma-separated frontend origins, for example `https://your-frontend.example` |
+| `UPLOAD_DIR` | `/tmp/approveflow-uploads` (also configured in `render.yaml`) |
+| `SEED_DEMO_DATA` | `true` to populate a fresh empty database with demo data; `false` to leave it empty |
+
+Startup creates missing tables. When `SEED_DEMO_DATA=true`, the demo seed runs only if the users table is empty; it is not rerun on deployments with existing users. Demo seeding creates demonstration accounts and synthetic data, so enable it only for a demo database. Production startup refuses the default development `SECRET_KEY`.
+
+**Free-tier limitation:** Render free services sleep after inactivity, and uploaded files on the service filesystem are not persistent. This deployment is for demo use only; do not rely on it for production data or durable uploads.
+
 ## Setup
 
 1. Use Python 3.11 or newer. From the project directory, create and activate a virtual environment if needed.

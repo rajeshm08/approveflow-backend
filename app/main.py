@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import Base, engine, ensure_extension_columns
 from app import models  # noqa: F401
+from app.models.user import User
 from app.routers import (
     applications,
     assistant,
@@ -23,8 +24,17 @@ from app.services.deadlines import start_deadline_scheduler
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
+    settings.validate_runtime_settings()
     Base.metadata.create_all(bind=engine)
     ensure_extension_columns()
+    if settings.seed_demo_data:
+        from app.database import SessionLocal
+        from seed_demo_data import seed
+
+        with SessionLocal() as db:
+            users_exist = db.query(User.id).first() is not None
+        if not users_exist:
+            seed()
     scheduler = start_deadline_scheduler() if settings.demo_mode else None
     try:
         yield
@@ -57,6 +67,8 @@ app.include_router(notifications.router)
 app.include_router(escalations.router)
 app.include_router(reports.router)
 app.include_router(assistant.router)
+
+
 @app.get("/health", tags=["health"])
 def health():
     return {"status": "ok"}

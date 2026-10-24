@@ -12,6 +12,7 @@ class Document(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"), index=True)
     name: Mapped[str] = mapped_column(String(200))
+    document_type: Mapped[str | None] = mapped_column(String(100), nullable=True)
     storage_key: Mapped[str] = mapped_column(String(80), unique=True, index=True)
     content_type: Mapped[str] = mapped_column(String(100))
     size_bytes: Mapped[int] = mapped_column()

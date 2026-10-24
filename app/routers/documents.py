@@ -63,6 +63,7 @@ def list_documents(db: Session = Depends(get_db), user: User = Depends(get_curre
 @router.post("/upload", status_code=201)
 async def upload_document(
     application_id: int = Form(...),
+    document_type: str = Form(default="supporting_document", min_length=1, max_length=100),
     reason: str = Form(..., min_length=1, max_length=2000),
     file: UploadFile = File(...),
     expires_at: datetime | None = Form(default=None),
@@ -99,6 +100,7 @@ async def upload_document(
     document = Document(
         application_id=application.id,
         name=Path(file.filename or "document").name,
+        document_type=document_type.strip(),
         storage_key=storage_key,
         content_type=detected_type,
         size_bytes=len(data),
@@ -119,6 +121,7 @@ async def upload_document(
                 "new_values": {
                     "application_id": application.id,
                     "name": document.name,
+                    "document_type": document.document_type,
                     "content_type": detected_type,
                     "size_bytes": len(data),
                     "expires_at": expires_at.isoformat() if expires_at else None,

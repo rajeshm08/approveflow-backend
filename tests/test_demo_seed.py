@@ -9,7 +9,7 @@ import app.services.deadlines as deadlines
 import seed_demo_data
 from app.config import settings
 from app.database import Base, get_db
-from app.models import Application, AuditLog, Escalation, EVCEvent, Notification, User
+from app.models import Application, AuditLog, Document, Escalation, EVCEvent, Notification, User
 from app.security.auth import create_access_token
 
 
@@ -66,6 +66,20 @@ def test_seed_contains_demo_escalations_notifications_and_assistant_answer(monke
                     assert len(rows) >= 15
                     assert {row.delivery_status for row in rows} >= {"sent", "pending"}
                 assert db.query(EVCEvent).filter_by(application_id=application.id).count() == 1
+                demo_documents = db.query(Document).filter(
+                    Document.name.like("Demo %")
+                ).all()
+                days_remaining = {
+                    round((document.expires_at - seed_demo_data.datetime.utcnow()).total_seconds() / 86400)
+                    for document in demo_documents
+                }
+                assert days_remaining == {5, 12, 25, -2}
+                expired_demo_document = next(
+                    document for document in demo_documents if document.expires_at < seed_demo_data.datetime.utcnow()
+                )
+                assert db.query(Notification).filter_by(
+                    deduplication_key=f"doc:{expired_demo_document.id}:expired_plus_1"
+                ).one_or_none() is not None
                 admin = db.query(User).filter_by(role="admin").one()
                 institution_user = db.query(User).filter_by(role="institution").one()
                 seeded_counts = (

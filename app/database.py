@@ -24,6 +24,7 @@ def get_db():
 def ensure_extension_columns() -> None:
     extensions = {
         "documents": {
+            "document_type": "VARCHAR(100)",
             "storage_key": "VARCHAR(80)",
             "content_type": "VARCHAR(100)",
             "size_bytes": "INTEGER",
@@ -36,6 +37,7 @@ def ensure_extension_columns() -> None:
             "delivery_status": "VARCHAR(30)",
         },
         "escalations": {
+            "document_id": "INTEGER REFERENCES documents(id)",
             "deduplication_key": "VARCHAR(240)",
             "escalation_level": "VARCHAR(60)",
             "resolved_by": "INTEGER",

@@ -11,6 +11,7 @@ class Escalation(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     application_id: Mapped[int] = mapped_column(ForeignKey("applications.id"), index=True)
+    document_id: Mapped[int | None] = mapped_column(ForeignKey("documents.id"), nullable=True, index=True)
     reason: Mapped[str] = mapped_column(Text)
     status: Mapped[str] = mapped_column(String(40), default="open")
     escalation_level: Mapped[str | None] = mapped_column(String(60), nullable=True)

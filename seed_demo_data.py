@@ -173,19 +173,26 @@ def seed() -> None:
             )
 
         settings.upload_directory.mkdir(parents=True, exist_ok=True)
-        for application in (app_1002, applications[4], applications[9]):
+        document_expiries = [
+            ("operating_license", 5),
+            ("accreditation_certificate", 12),
+            ("safety_certificate", 25),
+            ("registration_certificate", -2),
+        ]
+        for document_type, days_until_expiry in document_expiries:
             storage_key = uuid4().hex
             content = b"%PDF-1.7\nApproveFlow demo evidence.\n"
             (settings.upload_directory / storage_key).write_bytes(content)
             db.add(
                 Document(
-                    application_id=application.id,
-                    name=f"Demo evidence {application.application_number}.pdf",
+                    application_id=applications[0].id,
+                    name=f"Demo {document_type.replace('_', ' ')}.pdf",
+                    document_type=document_type,
                     storage_key=storage_key,
                     content_type="application/pdf",
                     size_bytes=len(content),
-                    status="uploaded",
-                    expires_at=seeded_at + timedelta(days=14),
+                    status="verified",
+                    expires_at=seeded_at + timedelta(days=days_until_expiry),
                 )
             )
 

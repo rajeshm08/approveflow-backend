@@ -49,7 +49,7 @@ The seed includes APP-1001 through APP-1025, escalations, notifications, EVC/com
 
 Confirm the prompt to continue, or use `--yes` for a non-interactive reset. The tool allows the default `approveflow.db` and clearly named `approveflow` demo/E2E SQLite databases. For PostgreSQL or any other database name, it refuses unless `SEED_DEMO_DATA=true` is set in the environment; only set this for a verified, disposable demo database.
 
-Uploaded files are validated by file signature and declared content type, limited to 5 MB, and stored under a random key in a private directory (`UPLOAD_DIRECTORY`, default `private_uploads`). This directory is not mounted as a public static path.
+Uploaded files are validated by file signature and declared content type, limited to 5 MB, and stored under a random key in a private directory (`UPLOAD_DIR`, default `private_uploads`). This directory is not mounted as a public static path. The deadline scheduler also monitors document validity: the configurable 30/15/7-day reminders, +1-day expired alert, and 3-day escalation grace period are illustrative demo values, not official AICTE rules. Configure them with `DOCUMENT_EXPIRY_ALERT_OFFSETS_DAYS` and `DOCUMENT_EXPIRY_ESCALATION_GRACE_DAYS`.
 
 ## Demo logins
 
@@ -85,7 +85,7 @@ All application routes use `/api`.
 | GET | `/api/compliance` | List undertaking/compliance records, scoped for institution users |
 | POST | `/api/compliance/{compliance_id}/submit` | Submit a compliance record with an audit `reason` |
 | GET | `/api/documents` | List accessible document metadata |
-| POST | `/api/documents/upload` | Upload a PDF/JPG/PNG as multipart form data (`application_id`, `file`, `reason`, optional `expires_at`) |
+| POST | `/api/documents/upload` | Upload a PDF/JPG/PNG as multipart form data (`application_id`, `file`, `reason`, optional `document_type` and `expires_at`) |
 | GET | `/api/documents/expiring` | List documents expiring within the selected `days` window |
 | GET | `/api/documents/{document_id}/download` | Download a document after access checks |
 | GET | `/api/notifications` | List the current user's notifications |

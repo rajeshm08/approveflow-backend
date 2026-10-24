@@ -28,6 +28,14 @@ class Settings:
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
     demo_mode: bool = os.getenv("DEMO_MODE", "true").lower() in {"1", "true", "yes"}
     seed_demo_data: bool = os.getenv("SEED_DEMO_DATA", "false").lower() in {"1", "true", "yes"}
+    document_expiry_alert_offsets_days: tuple[int, ...] = tuple(
+        int(offset.strip())
+        for offset in os.getenv("DOCUMENT_EXPIRY_ALERT_OFFSETS_DAYS", "30,15,7").split(",")
+        if offset.strip()
+    )
+    document_expiry_escalation_grace_days: int = int(
+        os.getenv("DOCUMENT_EXPIRY_ESCALATION_GRACE_DAYS", "3")
+    )
     upload_directory: Path = Path(
         os.getenv("UPLOAD_DIR", str(Path(__file__).resolve().parents[1] / "private_uploads"))
     ).resolve()

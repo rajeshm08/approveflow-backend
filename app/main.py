@@ -1,6 +1,6 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
@@ -72,3 +72,13 @@ app.include_router(assistant.router)
 @app.get("/health", tags=["health"])
 def health():
     return {"status": "ok"}
+
+
+@app.api_route(
+    "/ping",
+    methods=["GET", "HEAD"],
+    status_code=status.HTTP_204_NO_CONTENT,
+    include_in_schema=False,
+)
+def ping():
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

@@ -6,6 +6,13 @@ from app.services.deadlines import process_deadlines
 from tests.conftest import token_for
 
 
+def test_ping_get_and_head_return_empty_204(client):
+    for method in ("GET", "HEAD"):
+        response = client.request(method, "/ping")
+        assert response.status_code == 204
+        assert response.content == b""
+
+
 def test_running_deadline_scheduler_twice_deduplicates_notifications(client):
     now = datetime.utcnow().replace(second=0, microsecond=0)
     with client.testing_session_factory() as db:
